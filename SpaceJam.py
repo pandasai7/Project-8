@@ -12,7 +12,7 @@ from direct.gui.DirectGui import *
 
 class MyApp(ShowBase):
 
-    class globalVar(object):
+    class ControlMenu(object):
         isMenuOpen = False
 
         txtscale = 0.05
@@ -32,6 +32,30 @@ class MyApp(ShowBase):
         down_ctrl_old = []
 
 
+    class MainMenu(object):
+        isMenuOpen = False
+
+        txtscale = 0.05
+        txtentrywidth = 5
+        txtlabelcolor = (255, 255, 255, 255)
+        menufilepath = './Assets/menu/menubg.png'
+        menubgscale = (1, 0.75, 0.75)
+        
+        left_ctrl = 'a'
+        right_ctrl = 'd'
+        up_ctrl = 'w'
+        down_ctrl = 's'
+
+        left_ctrl_old = ''
+        right_ctrl_old = ''
+        up_ctrl_old = ''
+        down_ctrl_old = ''
+
+        left_entry = ''
+        right_entry = ''
+        up_entry = ''
+        down_entry = ''
+
 
     def __init__(self):
         ShowBase.__init__(self)
@@ -45,28 +69,29 @@ class MyApp(ShowBase):
             
             #controls---------
             #menu
-            self.openMenu(MyApp.globalVar.isMenuOpen)
+            #self.openSettingsMenu(MyApp.ControlMenu.isMenuOpen)
+            self.openMainMenu(MyApp.MainMenu.isMenuOpen)
             
             #left
-            self.accept(MyApp.globalVar.left_ctrl, self.negativeX, [1]) #LeftPressed
-            self.accept(MyApp.globalVar.left_ctrl + '-up', self.negativeX, [0]) #LeftReleased
+            self.accept(MyApp.ControlMenu.left_ctrl, self.negativeX, [1]) #LeftPressed
+            self.accept(MyApp.ControlMenu.left_ctrl + '-up', self.negativeX, [0]) #LeftReleased
 
             #right
-            self.accept(MyApp.globalVar.right_ctrl, self.positiveX, [1]) #RightPressed
-            self.accept(MyApp.globalVar.right_ctrl + '-up', self.positiveX, [0]) #RightReleased
+            self.accept(MyApp.ControlMenu.right_ctrl, self.positiveX, [1]) #RightPressed
+            self.accept(MyApp.ControlMenu.right_ctrl + '-up', self.positiveX, [0]) #RightReleased
 
             #up
-            self.accept(MyApp.globalVar.up_ctrl, self.positiveY, [1]) #RightPressed
-            self.accept(MyApp.globalVar.up_ctrl + '-up', self.positiveY, [0]) #RightReleased
+            self.accept(MyApp.ControlMenu.up_ctrl, self.positiveY, [1]) #RightPressed
+            self.accept(MyApp.ControlMenu.up_ctrl + '-up', self.positiveY, [0]) #RightReleased
 
             #down
-            self.accept(MyApp.globalVar.down_ctrl, self.negativeY, [1]) #RightPressed
-            self.accept(MyApp.globalVar.down_ctrl + '-up', self.negativeY, [0]) #RightReleased
+            self.accept(MyApp.ControlMenu.down_ctrl, self.negativeY, [1]) #RightPressed
+            self.accept(MyApp.ControlMenu.down_ctrl + '-up', self.negativeY, [0]) #RightReleased
 
             #rollleft
             self.accept('q', self.barrelRollLeft, [1])
             self.accept('q' + '-up', self.barrelRollLeft, [0])
-
+        
 
         
 
@@ -75,7 +100,11 @@ class MyApp(ShowBase):
         #SetMovement(self)
         SetControls(self)
         
-        self.accept('escape', SetControls, [self])
+        self.openSettingsMenu(MyApp.ControlMenu.isMenuOpen)
+        self.closeSettingsMenu()
+        self.openMainMenu(MyApp.MainMenu.isMenuOpen)
+        self.closeMainMenu()
+        self.accept('escape', self.toggleMenu, [False])
 
     def negativeX(self, keyDown):
             if(keyDown):
@@ -126,60 +155,138 @@ class MyApp(ShowBase):
         self.Hero.rotateLeft()
         return task.cont
 
-    def openMenu(self, openOr):
+    def toggleMenu(self, openOr):
+        if(not openOr):
+            self.openMainMenu(MyApp.MainMenu.isMenuOpen)
+        else:
+            self.closeMainMenu()
+            self.closeSettingsMenu()
+
+    def openSettingsMenu(self, openOr):
             if(not openOr):
                 
-                MyApp.globalVar.menubgimg = OnscreenImage(image = MyApp.globalVar.menufilepath, pos = (0, 0, 0.2), scale = MyApp.globalVar.menubgscale)
-                MyApp.globalVar.up_label = OnscreenText(text = 'FORWARD CONTROL', pos = (-0.3, 0.1), scale = MyApp.globalVar.txtscale, fg = MyApp.globalVar.txtlabelcolor)            
-                MyApp.globalVar.up_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.globalVar.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.1))
-                MyApp.globalVar.down_label = OnscreenText(text = 'DOWN CONTROL', pos = (-0.3, 0.2), scale = MyApp.globalVar.txtscale, fg = MyApp.globalVar.txtlabelcolor)            
-                MyApp.globalVar.down_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.globalVar.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.2))
-                MyApp.globalVar.left_label = OnscreenText(text = 'LEFT CONTROL', pos = (-0.3, 0.3), scale = MyApp.globalVar.txtscale, fg = MyApp.globalVar.txtlabelcolor)            
-                MyApp.globalVar.left_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.globalVar.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.3))
-                MyApp.globalVar.right_label = OnscreenText(text = 'RIGHT CONTROL', pos = (-0.3, 0.4), scale = MyApp.globalVar.txtscale, fg = MyApp.globalVar.txtlabelcolor)            
-                MyApp.globalVar.right_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.globalVar.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.4))
+                MyApp.ControlMenu.menubgimg = OnscreenImage(image = MyApp.ControlMenu.menufilepath, pos = (0, 0, 0.2), scale = MyApp.ControlMenu.menubgscale)
+                MyApp.ControlMenu.up_label = OnscreenText(text = 'FORWARD CONTROL', pos = (-0.3, 0.1), scale = MyApp.ControlMenu.txtscale, fg = MyApp.ControlMenu.txtlabelcolor)            
+                MyApp.ControlMenu.up_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.ControlMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.1))
+                MyApp.ControlMenu.down_label = OnscreenText(text = 'DOWN CONTROL', pos = (-0.3, 0.2), scale = MyApp.ControlMenu.txtscale, fg = MyApp.ControlMenu.txtlabelcolor)            
+                MyApp.ControlMenu.down_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.ControlMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.2))
+                MyApp.ControlMenu.left_label = OnscreenText(text = 'LEFT CONTROL', pos = (-0.3, 0.3), scale = MyApp.ControlMenu.txtscale, fg = MyApp.ControlMenu.txtlabelcolor)            
+                MyApp.ControlMenu.left_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.ControlMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.3))
+                MyApp.ControlMenu.right_label = OnscreenText(text = 'RIGHT CONTROL', pos = (-0.3, 0.4), scale = MyApp.ControlMenu.txtscale, fg = MyApp.ControlMenu.txtlabelcolor)            
+                MyApp.ControlMenu.right_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.ControlMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.4))
 
                 def setText():
                     bk_text = "Button Clicked"
-                    MyApp.globalVar.up_ctrl = MyApp.globalVar.up_entry.get()
-                    MyApp.globalVar.down_ctrl = MyApp.globalVar.down_entry.get()
-                    MyApp.globalVar.left_ctrl = MyApp.globalVar.left_entry.get()
-                    MyApp.globalVar.right_ctrl = MyApp.globalVar.right_entry.get()
+                    MyApp.ControlMenu.up_ctrl = MyApp.ControlMenu.up_entry.get()
+                    MyApp.ControlMenu.down_ctrl = MyApp.ControlMenu.down_entry.get()
+                    MyApp.ControlMenu.left_ctrl = MyApp.ControlMenu.left_entry.get()
+                    MyApp.ControlMenu.right_ctrl = MyApp.ControlMenu.right_entry.get()
 
                     # Add button
-                MyApp.globalVar.save_btn = DirectButton(text=("SAVE SETTINGS", "SAVED", "SAVE SETTINGS", "disabled"), scale=.05, command=setText)
+                MyApp.ControlMenu.save_btn = DirectButton(text=("SAVE SETTINGS", "SAVED", "SAVE SETTINGS", "disabled"), scale=.05, command=setText)
 
 
-                self.globalVar.isMenuOpen = True
+                self.ControlMenu.isMenuOpen = True
             else:
-                self.globalVar.isMenuOpen = False
-                if(MyApp.globalVar.left_entry.get() != ''): 
-                    MyApp.globalVar.left_ctrl_old.append(MyApp.globalVar.left_entry.get())
-                if(MyApp.globalVar.right_entry.get() != ''):
-                    MyApp.globalVar.right_ctrl_old.append(MyApp.globalVar.right_entry.get())
-                if(MyApp.globalVar.up_entry.get() != ''):
-                    MyApp.globalVar.up_ctrl_old.append(MyApp.globalVar.up_entry.get())
-                if(MyApp.globalVar.down_entry.get() != ''):
-                    MyApp.globalVar.down_ctrl_old.append(MyApp.globalVar.down_entry.get())
+             
+                self.closeSettingsMenu()
 
-                MyApp.globalVar.menubgimg.destroy()
-                MyApp.globalVar.up_label.destroy()            
-                MyApp.globalVar.up_entry.destroy()
-
-                MyApp.globalVar.down_label.destroy()            
-                MyApp.globalVar.down_entry.destroy()
-
-                MyApp.globalVar.left_label.destroy()            
-                MyApp.globalVar.left_entry.destroy()
-
-                MyApp.globalVar.right_label.destroy()            
-                MyApp.globalVar.right_entry.destroy()
-                MyApp.globalVar.save_btn.destroy()
-
-                for i in MyApp.globalVar.left_ctrl_old:
+                for i in MyApp.ControlMenu.left_ctrl_old:
                     self.ignore(i)
 
+    def closeSettingsMenu(self):
+        MyApp.ControlMenu.isMenuOpen = False
+        if(MyApp.ControlMenu.left_entry.get() != ''): 
+            MyApp.ControlMenu.left_ctrl_old.append(MyApp.ControlMenu.left_entry.get())
+        if(MyApp.ControlMenu.right_entry.get() != ''):
+            MyApp.ControlMenu.right_ctrl_old.append(MyApp.ControlMenu.right_entry.get())
+        if(MyApp.ControlMenu.up_entry.get() != ''):
+            MyApp.ControlMenu.up_ctrl_old.append(MyApp.ControlMenu.up_entry.get())
+        if(MyApp.ControlMenu.down_entry.get() != ''):
+            MyApp.ControlMenu.down_ctrl_old.append(MyApp.ControlMenu.down_entry.get())
 
+        MyApp.ControlMenu.menubgimg.destroy()
+        MyApp.ControlMenu.up_label.destroy()           
+        MyApp.ControlMenu.up_entry.destroy()
+
+        MyApp.ControlMenu.down_label.destroy()            
+        MyApp.ControlMenu.down_entry.destroy()
+
+        MyApp.ControlMenu.left_label.destroy()            
+        MyApp.ControlMenu.left_entry.destroy()
+
+        MyApp.ControlMenu.right_label.destroy()            
+        MyApp.ControlMenu.right_entry.destroy()
+        MyApp.ControlMenu.save_btn.destroy()
+
+    def openMainMenu(self, openOr):
+            if(not openOr):
+                
+                MyApp.MainMenu.menubgimg = OnscreenImage(image = MyApp.MainMenu.menufilepath, pos = (0, 0, 0.2), scale = MyApp.MainMenu.menubgscale)
+                MyApp.MainMenu.up_label = OnscreenText(text = '', pos = (-0.3, 0.1), scale = MyApp.MainMenu.txtscale, fg = MyApp.MainMenu.txtlabelcolor)            
+                MyApp.MainMenu.up_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.MainMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.1))
+                MyApp.MainMenu.down_label = OnscreenText(text = '', pos = (-0.3, 0.2), scale = MyApp.MainMenu.txtscale, fg = MyApp.MainMenu.txtlabelcolor)            
+                MyApp.MainMenu.down_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.MainMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.2))
+                MyApp.MainMenu.left_label = OnscreenText(text = '', pos = (-0.3, 0.3), scale = MyApp.MainMenu.txtscale, fg = MyApp.MainMenu.txtlabelcolor)            
+                MyApp.MainMenu.left_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.MainMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.3))
+                MyApp.MainMenu.right_label = OnscreenText(text = '', pos = (-0.3, 0.4), scale = MyApp.MainMenu.txtscale, fg = MyApp.MainMenu.txtlabelcolor)            
+                MyApp.MainMenu.right_entry = DirectEntry(width=10, numLines = 1, scale = MyApp.MainMenu.txtscale, relief = DGG.SUNKEN, cursorKeys = 1, frameSize = (0, 15, 0, 1), pos = (0.0, 0.0, 0.4))
+
+                def closeMenu():
+                    bk_text = "Button Clicked"
+                    self.MainMenu.isMenuOpen = False
+                        
+                    MyApp.MainMenu.menubgimg.destroy()
+                    MyApp.MainMenu.up_label.destroy()            
+                    MyApp.MainMenu.up_entry.destroy()
+
+                    MyApp.MainMenu.down_label.destroy()            
+                    MyApp.MainMenu.down_entry.destroy()
+
+                    MyApp.MainMenu.left_label.destroy()            
+                    MyApp.MainMenu.left_entry.destroy()
+
+                    MyApp.MainMenu.right_label.destroy()            
+                    MyApp.MainMenu.right_entry.destroy()
+                    MyApp.MainMenu.close_btn.destroy()
+                    MyApp.MainMenu.settings_btn.destroy()
+
+
+                    # Add button
+                MyApp.MainMenu.close_btn = DirectButton(text=("CLOSE", "CLOSE", "CLOSE", "disabled"), scale=.05, command=closeMenu)
+                MyApp.MainMenu.settings_btn = DirectButton(text=("CONTROLS", "CONTROLS", "CONTROLS", "disabled"), scale=.05, command=self.openSettingsMenu, extraArgs = [False])
+                #MyApp.MainMenu.settings_btn.command = self.openSettingsMenu
+
+                self.MainMenu.isMenuOpen = True
+
+            else:
+                self.MainMenu.isMenuOpen = False
+                if(MyApp.MainMenu.left_entry.get() != ''): 
+                    MyApp.MainMenu.left_ctrl_old.append(MyApp.MainMenu.left_entry.get())
+                if(MyApp.MainMenu.right_entry.get() != ''):
+                    MyApp.MainMenu.right_ctrl_old.append(MyApp.MainMenu.right_entry.get())
+                if(MyApp.MainMenu.up_entry.get() != ''):
+                    MyApp.MainMenu.up_ctrl_old.append(MyApp.MainMenu.up_entry.get())
+                if(MyApp.MainMenu.down_entry.get() != ''):
+                    MyApp.MainMenu.down_ctrl_old.append(MyApp.MainMenu.down_entry.get())
+
+                self.closeMainMenu()
+
+    def closeMainMenu(self):
+        
+        MyApp.MainMenu.menubgimg.destroy()
+        MyApp.MainMenu.up_label.destroy()           
+        MyApp.MainMenu.up_entry.destroy()
+
+        MyApp.MainMenu.down_label.destroy()            
+        MyApp.MainMenu.down_entry.destroy()
+
+        MyApp.MainMenu.left_label.destroy()            
+        MyApp.MainMenu.left_entry.destroy()
+
+        MyApp.MainMenu.right_label.destroy()            
+        MyApp.MainMenu.right_entry.destroy()
+        #MyApp.MainMenu.save_btn.destroy()
 
 
 
